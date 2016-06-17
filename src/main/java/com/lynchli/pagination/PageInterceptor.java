@@ -16,10 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.*;
+import java.util.function.Supplier;
 
 /**
  * @author Lynch
@@ -59,13 +57,13 @@ public class PageInterceptor implements Interceptor {
         args[1] = dialect.getParameterObject();
         args[2] = RowBounds.DEFAULT;
 
-        Future<List> listFuture = call(() -> (List) invocation.proceed(), dialect.isAsyncTotalCount());
+        CompletableFuture<List> listFuture = CompletableFuture.supplyAsync(wrapped(() -> (List) invocation.proceed()));
 
         args[0] = dialect.createCountMappedStatement();
 
-        PageList<?> pageList = null;
+        PageList pageList = null;
         if(dialect.isContainsTotalCount()) {
-            Callable<PageList<?>> countTask = () -> {
+            CompletableFuture<PageList<?>> countFuture = CompletableFuture.supplyAsync(wrapped(() -> {
                 MappedStatement mappedStatement = (MappedStatement) args[0];
                 Integer count;
                 Cache cache = mappedStatement.getCache();
@@ -82,8 +80,7 @@ public class PageInterceptor implements Interceptor {
                     count = (Integer) ((List) result).get(0);
                 }
                 return new PageList(pageBounds.getPage(), pageBounds.getLimit(), count);
-            };
-            Future<PageList<?>> countFuture = call(countTask, dialect.isAsyncTotalCount());
+            }));
             pageList = countFuture.get();
         }
 
@@ -115,14 +112,17 @@ public class PageInterceptor implements Interceptor {
     @Override
     public void setProperties(Properties properties) {
         Optional<String> dialectClass = Optional.ofNullable(properties.getProperty("dialectClass"));
-        setDialectClass(dialectClass.orElseThrow(()-> new IllegalStateException("required property: dialectClass")));
+        setDialectClass(dialectClass.orElseThrow(() -> new IllegalStateException("required property: dialectClass")));
     }
 
-    public <T> Future<T> call(Callable<T> callable, boolean async){
-        //TODO unsupported async call
-        FutureTask<T> future = new FutureTask<T>(callable);
-        future.run();
-        return future;
+    private <T> Supplier<T> wrapped(Callable<T> callable){
+        return () -> {
+            try {
+                return callable.call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
     }
 
     public void setDialectClass(String dialectClass) {

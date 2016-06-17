@@ -17,7 +17,6 @@ public class PageBounds extends RowBounds {
     private int size;
     private Sort sort;
     private boolean containsTotalCount;
-    private boolean asyncTotalCount;
 
     public PageBounds(){
         this(DEFAULT_PAGE);
@@ -28,26 +27,21 @@ public class PageBounds extends RowBounds {
     }
 
     public PageBounds(int page, int size){
-        this(page, size, false, false, null);
+        this(page, size, true, null);
     }
 
     public PageBounds(int page, int size, boolean containsTotalCount){
-        this(page, size, containsTotalCount, false, null);
+        this(page, size, containsTotalCount, null);
     }
 
-    public PageBounds(int page, int size, boolean containsTotalCount, boolean asyncTotalCount){
-        this(page, size, containsTotalCount, asyncTotalCount, null);
+    public PageBounds(int page, int size, boolean containsTotalCount, Sort.Direction direction, String... properties){
+        this(page, size, containsTotalCount, new Sort(direction, properties));
     }
 
-    public PageBounds(int page, int size, boolean containsTotalCount, boolean asyncTotalCount, Sort.Direction direction, String... properties){
-        this(page, size, containsTotalCount, asyncTotalCount, new Sort(direction, properties));
-    }
-
-    public PageBounds(int page, int size, boolean containsTotalCount, boolean asyncTotalCount, Sort sort){
+    public PageBounds(int page, int size, boolean containsTotalCount, Sort sort){
         this.page = page <= 0 ? DEFAULT_PAGE : page;
         this.size = size <= 0 ? DEFAULT_PAGE : size;
         this.containsTotalCount = containsTotalCount;
-        this.asyncTotalCount = asyncTotalCount;
         this.sort = sort;
     }
 
@@ -104,9 +98,5 @@ public class PageBounds extends RowBounds {
 
     public boolean getContainsTotalCount() {
         return containsTotalCount;
-    }
-
-    public boolean getAsyncTotalCount() {
-        return asyncTotalCount;
     }
 }

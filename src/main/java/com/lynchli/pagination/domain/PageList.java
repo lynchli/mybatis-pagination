@@ -7,26 +7,25 @@ import java.util.Collection;
  * @author Lynch
  * @since 2015-04-24
  */
-public class PageList<E> extends ArrayList<E> implements Page{
-
+public class PageList<E> extends ArrayList implements Page {
 
     private int page;
     private int size;
     private int totalCount;
 
-    public PageList(){
+    public PageList() {
         this(PageBounds.DEFAULT_PAGE);
     }
 
-    public PageList(int page){
+    public PageList(int page) {
         this(page, PageBounds.DEFAULT_SIZE);
     }
 
-    public PageList(int page, int size){
+    public PageList(int page, int size) {
         this(page, size, 0);
     }
 
-    public PageList(int page, int size, int totalCount){
+    public PageList(int page, int size, int totalCount) {
         this.page = page;
         this.size = size;
         this.totalCount = totalCount;
@@ -36,16 +35,16 @@ public class PageList<E> extends ArrayList<E> implements Page{
         super(content);
     }
 
-    public PageList(Collection<? extends E> content,int page) {
+    public PageList(Collection<? extends E> content, int page) {
         this(content, page, PageBounds.DEFAULT_SIZE);
     }
 
-    public PageList(Collection<? extends E> content,int page, int size) {
+    public PageList(Collection<? extends E> content, int page, int size) {
         this(content, page, size, 0);
     }
 
-    public PageList(Collection<? extends E> content,int page, int size, int totalCount) {
-        super(content);
+    public PageList(Collection<? extends E> content, int page, int size, int totalCount) {
+        this(content);
         this.page = page;
         this.size = size;
         this.totalCount = totalCount;

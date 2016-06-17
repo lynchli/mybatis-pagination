@@ -26,7 +26,6 @@ public abstract class AbstractDialect{
     private String countSql;
 
     private boolean containsTotalCount;
-    private boolean asyncTotalCount;
 
 
     protected String getTotalSql() {
@@ -129,7 +128,6 @@ public abstract class AbstractDialect{
         pageSql = this.getLimitSql("__offset", pageBounds.getOffset(), "__limit", pageBounds.getLimit());
         countSql = getTotalSql();
         containsTotalCount =  pageBounds.getContainsTotalCount();
-        asyncTotalCount = pageBounds.getAsyncTotalCount();
     }
 
     public String getPageSql() {
@@ -142,10 +140,6 @@ public abstract class AbstractDialect{
 
     public boolean isContainsTotalCount() {
         return containsTotalCount;
-    }
-
-    public boolean isAsyncTotalCount() {
-        return asyncTotalCount;
     }
 
     public Object getParameterObject(){
